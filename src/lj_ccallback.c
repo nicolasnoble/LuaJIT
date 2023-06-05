@@ -681,6 +681,11 @@ lua_State * LJ_FASTCALL lj_ccallback_enter(CTState *cts, void *cf)
   lua_State *L = cts->L;
   global_State *g = cts->g;
   lj_assertG(L != NULL, "uninitialized cts->L in callback");
+#if LJ_HASJIT
+  jit_State *J = G2J(g);
+  J->L = L;
+#endif
+  setgcref(g->cur_L, obj2gco(L));
   if (tvref(g->jit_base)) {
     setstrV(L, L->top++, lj_err_str(L, LJ_ERR_FFI_BADCBACK));
     if (g->panic) g->panic(L);
